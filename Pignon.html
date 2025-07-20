@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Calculateur de pente de pignon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+      body {
+        font-family: 'Public Sans', 'Noto Sans', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-white min-h-screen flex flex-col items-center">
+    <header class="w-full border-b border-gray-200 px-10 py-3 text-[#111418] flex items-center justify-between">
+      <h2 class="text-lg font-bold">Calculateur de pente de pignon</h2>
+    </header>
+
+    <main class="w-full max-w-3xl p-6">
+      <h2 class="text-2xl font-bold text-center mb-6">Calculateur de pente de pignon</h2>
+
+      <div class="space-y-4">
+        <label class="block">
+          <span class="font-medium">Longueur du mur (mètres)</span>
+          <input id="mur" type="number" placeholder="Ex: 10" class="mt-1 w-full border rounded-lg p-3" />
+        </label>
+
+        <label class="block">
+          <span class="font-medium">Hauteur du pignon (mètres)</span>
+          <input id="hauteur" type="number" placeholder="Ex: 3" class="mt-1 w-full border rounded-lg p-3" />
+        </label>
+
+        <label class="block">
+          <span class="font-medium">Pente (%)</span>
+          <input id="pente" type="number" placeholder="Ex: 30" class="mt-1 w-full border rounded-lg p-3" />
+        </label>
+
+        <div class="text-center">
+          <button onclick="calculer()"
+            class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">
+            Calculer
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-10 border-t pt-6 space-y-4">
+        <h3 class="text-xl font-bold">Résultats</h3>
+        <p><strong>Hauteur calculée :</strong> <span id="result-hauteur">–</span> m</p>
+        <p><strong>Longueur du rampant :</strong> <span id="result-hypotenuse">–</span> m</p>
+      </div>
+      <div class="mt-10">
+  <h3 class="text-xl font-bold mb-4">Schéma du pignon</h3>
+  <svg id="schema" viewBox="0 0 300 150" class="w-full max-w-md border rounded-lg bg-gray-50 p-2">
+    <polygon points="50,100 150,30 250,100" fill="#93c5fd" stroke="#3b82f6" stroke-width="2" />
+    <!-- Base -->
+    <line x1="50" y1="100" x2="250" y2="100" stroke="#111" stroke-width="1" />
+    <!-- Hauteur -->
+    <line x1="150" y1="30" x2="150" y2="100" stroke="#f87171" stroke-dasharray="4" stroke-width="2" />
+    <!-- Étiquettes -->
+    <text id="val-longueur" x="150" y="115" text-anchor="middle" fill="#111" font-size="12">Longueur : – m</text>
+    <text id="val-hauteur" x="160" y="65" fill="#111" font-size="12">Hauteur : – m</text>
+  </svg>
+</div>
+
+    </main>
+
+    <script>
+      function calculer() {
+  const murInput = document.getElementById("mur");
+  const hauteurInput = document.getElementById("hauteur");
+  const penteInput = document.getElementById("pente");
+
+  const mur = parseFloat(murInput.value);
+  const hauteur = parseFloat(hauteurInput.value);
+  const pente = parseFloat(penteInput.value);
+
+  const nbRemplis = [mur, hauteur, pente].filter(v => !isNaN(v)).length;
+
+  if (nbRemplis < 2) {
+    alert("Veuillez remplir au moins 2 valeurs sur 3 pour effectuer le calcul.");
+    return;
+  }
+
+  let L = mur;
+  let H = hauteur;
+  let P = pente;
+
+  // Cas 1 : L et P connus → calcul H
+  if (!hauteurInput.value && !isNaN(L) && !isNaN(P)) {
+    H = (L / 2) * (P / 100);
+    hauteurInput.value = H.toFixed(2);
+  }
+
+  // Cas 2 : L et H connus → calcul P
+  else if (!penteInput.value && !isNaN(L) && !isNaN(H)) {
+    P = (2 * H / L) * 100;
+    penteInput.value = P.toFixed(2);
+  }
+
+  // Cas 3 : H et P connus → calcul L
+  else if (!murInput.value && !isNaN(H) && !isNaN(P)) {
+    L = (2 * H * 100) / P;
+    murInput.value = L.toFixed(2);
+  }
+
+  // Calculs complémentaires
+  const demiMur = L / 2;
+  const hypotenuse = Math.sqrt(H ** 2 + demiMur ** 2);
+
+  // Affichage des résultats
+  document.getElementById("result-hauteur").textContent = H.toFixed(2);
+  document.getElementById("result-hypotenuse").textContent = hypotenuse.toFixed(2);
+
+  // Schéma
+  document.getElementById("val-longueur").textContent = `Longueur : ${L.toFixed(2)} m`;
+  document.getElementById("val-hauteur").textContent = `Hauteur : ${H.toFixed(2)} m`;
+}
+
+    </script>
+  </body>
+</html>
